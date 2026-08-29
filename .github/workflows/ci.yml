@@ -1,1 +1,41 @@
-{"has_issue": false, "summary": "Analysis completed", "issues": []}
+name: Consumet API Build and Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test-html:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code from GitHub Actions
+        uses: actions/checkout@v3.6.0
+
+      - name: Install dependencies (Hugo, Node.js)
+        run: |
+          npm install hugo --registry=https://www.npmjs.org/
+          sudo apt-get update && sudo apt-get upgrade nodejs libssl-dev curl git python3-pip
+          pip3 install requests beautifulsoup4 lxml openpyxl pandas matplotlib numpy scipy scikit-learn seaborn matplotlib.pyplot graphviz sympy jupyterlab ipython notebook google-auth-oauthlib flask gunicorn uvicorn redis-server psycopg2-binary sqlalchemy-postgresql pycryptodome pytz dateutil tzdata mysqlclient pymysql-connector-python google-api-core oauthlib.requests
+
+      - name: Build HTML site (Hugo and Node.js)
+        run: |
+          hugo build --gc --minify
+
+      - name: Run tests on the built site
+        runs-on: ubuntu-latest
+
+        steps:
+          - uses: actions/setup-node@v3.6.0
+            with:
+              node-version: '14'
+
+          - name: Install dependencies for testing
+            run: pip install pytest allure scapy requests beautifulsoup html5lib pandas matplotlib numpy seaborn graphviz sympy ipython notebook jupyterlab redis-server psycopg2_binary sqlalchemy-postgresql pycryptodome pythontz dateutil timezonedata mysqlclient pymysql-connector-python gunicorn uvicorn postgresql-binary pycryptodiempy pytz datetimeutils tzdata
+
+          - name: Run tests using `pytest`
+            run: |
+              pytest --alluredir=tests results/
+
+      # Optional step to deploy the site on GitHub Pages or other hosting services (e.g., Netlify, Vercel)
